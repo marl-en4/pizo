@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiezoPower | الطاقة المستدامة</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="dark-mode" id="bodyId">
+
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-panel">
+            <div class="logo">
+                <i class="fa-solid fa-leaf"></i>
+                <h1 data-lang="app_title">نظام الطاقة البيزوإلكتريك</h1>
+            </div>
+            <div class="controls">
+                <div id="espStatusBadge" class="connection-badge disconnected" title="حالة اتصال ESP32">
+                    <i class="fa-solid fa-microchip"></i> <span id="espStatusText" data-lang="esp_disconnected">غير متصل
+                        (ESP32)</span>
+                </div>
+                <button id="langToggle" class="btn-icon" title="تغيير اللغة | Change Language">
+                    <i class="fa-solid fa-language"></i> EN
+                </button>
+                <button id="themeToggle" class="btn-icon" title="الوضع الليلي / النهاري">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="glass-panel main-nav">
+            <button class="nav-btn active" data-target="energyTab">
+                <i class="fa-solid fa-bolt"></i> <span data-lang="nav_energy">الطاقة</span>
+            </button>
+            <button class="nav-btn" onclick="window.location.href='simulation.html'">
+                <i class="fa-solid fa-gamepad"></i> <span data-lang="nav_simulation">المحاكاة</span>
+            </button>
+            <button class="nav-btn" data-target="infoTab">
+                <i class="fa-solid fa-circle-info"></i> <span data-lang="nav_info">معلومات</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content-area">
+
+            <!-- ===== Energy Tab ===== -->
+            <section id="energyTab" class="tab-content active">
+
+                <div class="card glass-panel street-info">
+                    <h2 data-lang="street_id_title">معرف الشارع الحالي</h2>
+                    <p class="street-name">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span data-lang="street_name">شارع المركز الطلابي، جامعة الموصل</span>
+                    </p>
+                </div>
+
+                <!-- 3 Metric Cards -->
+                <div class="dashboard-grid">
+                    <div class="card glass-panel metric-card">
+                        <i class="fa-solid fa-battery-three-quarters metric-icon"></i>
+                        <h3 data-lang="battery_level">الطاقة المخزنة (البطارية)</h3>
+                        <div class="metric-value">
+                            <span id="batteryPercent">--</span>%
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="batteryBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="card glass-panel metric-card">
+                        <i class="fa-solid fa-bolt metric-icon"></i>
+                        <h3 data-lang="current_voltage">الفولتية الحالية</h3>
+                        <div class="metric-value">
+                            <span id="voltageValue">0.0</span> V
+                        </div>
+                    </div>
+
+                    <div class="card glass-panel metric-card">
+                        <i class="fa-solid fa-wave-square metric-icon"></i>
+                        <h3 data-lang="current_amp">التيار المتولد</h3>
+                        <div class="metric-value">
+                            <span id="currentValue">0.00</span> A
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 24-Hour Energy Chart -->
+                <div class="card glass-panel chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <i class="fa-solid fa-chart-area chart-title-icon"></i>
+                            <h3 data-lang="chart_24h_title">تباين الطاقة خلال 24 ساعة</h3>
+                        </div>
+                        <div class="chart-badge" id="chartStatusBadge">
+                            <i class="fa-solid fa-circle-dot"></i>
+                            <span data-lang="chart_demo_mode">وضع العرض التجريبي</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend-row">
+                        <span class="legend-pill" style="--lc:#4ade80">
+                            <span class="legend-dot-sm"></span>
+                            <span data-lang="chart_legend_generated">الطاقة المولدة (mWh)</span>
+                        </span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="energy24hChart"></canvas>
+                    </div>
+                    <p class="chart-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span data-lang="chart_note">القيم الحقيقية ستُعرض تلقائياً عند توصيل النظام بالخادم
+                            (Socket.io)</span>
+                    </p>
+                </div>
+
+                <!-- Live Stats Row -->
+                <div class="live-stats-row">
+                    <div class="card glass-panel live-stat-box">
+                        <i class="fa-solid fa-plug-circle-bolt live-stat-icon" style="color:#60a5fa"></i>
+                        <div class="live-stat-content">
+                            <span class="live-stat-num" id="totalEnergyToday">0.0</span>
+                            <span class="live-stat-label" data-lang="stat_energy_today">طاقة اليوم (mWh)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ===== Information Tab ===== -->
+            <section id="infoTab" class="tab-content">
+                <div class="card glass-panel info-card">
+
+                    <div class="info-hero">
+                        <i class="fa-solid fa-leaf info-hero-icon"></i>
+                        <div>
+                            <h2 data-lang="info_title">عن مشروع الطاقة المستدامة</h2>
+                            <p data-lang="info_desc_1" class="info-lead">مشروع مبتكر يهدف إلى استغلال الطاقة الحركية
+                                المهدورة من حركة أقدام المشاة داخل جامعة الموصل باستخدام تقنية (Piezoelectric)
+                                وتحويلها إلى طاقة كهربائية مستدامة.</p>
+                        </div>
+                    </div>
+
+                    <!-- Key Numbers -->
+                    <div class="key-numbers">
+                        <div class="kn-box">
+                            <span class="kn-num">30</span>
+                            <span class="kn-label" data-lang="kn_discs">قرص بيزوإلكتريك</span>
+                        </div>
+                        <div class="kn-box">
+                            <span class="kn-num">3–15</span>
+                            <span class="kn-label" data-lang="kn_voltage">فولت / ضغطة</span>
+                        </div>
+                        <div class="kn-box">
+                            <span class="kn-num">0.04</span>
+                            <span class="kn-label" data-lang="kn_current">أمبير / ضغطة</span>
+                        </div>
+                        <div class="kn-box">
+                            <span class="kn-num">60–70%</span>
+                            <span class="kn-label" data-lang="kn_efficiency">كفاءة النظام</span>
+                        </div>
+                        <div class="kn-box">
+                            <span class="kn-num">10+</span>
+                            <span class="kn-label" data-lang="kn_lifespan">سنوات تشغيل</span>
+                        </div>
+                        <div class="kn-box">
+                            <span class="kn-num">1000+</span>
+                            <span class="kn-label" data-lang="kn_daily_steps">خطوة يومياً</span>
+                        </div>
+                    </div>
+
+                    <!-- How it works timeline -->
+                    <div class="section-block">
+                        <h3 class="section-block-title">
+                            <i class="fa-solid fa-gears"></i>
+                            <span data-lang="how_works_title">كيف يعمل النظام؟</span>
+                        </h3>
+                        <div class="timeline">
+                            <div class="tl-item">
+                                <div class="tl-icon" style="--ic:#4ade80"><i class="fa-solid fa-shoe-prints"></i></div>
+                                <div class="tl-body">
+                                    <strong data-lang="tl1_title">الضغط الميكانيكي</strong>
+                                    <p data-lang="tl1_desc">يضغط الطالب على بلاطة مجهزة بأقراص بيزوإلكتريك أثناء المشي
+                                        عبر الممر</p>
+                                </div>
+                            </div>
+                            <div class="tl-connector"></div>
+                            <div class="tl-item">
+                                <div class="tl-icon" style="--ic:#facc15"><i class="fa-solid fa-bolt"></i></div>
+                                <div class="tl-body">
+                                    <strong data-lang="tl2_title">توليد الكهرباء</strong>
+                                    <p data-lang="tl2_desc">تتحول الطاقة الميكانيكية إلى فولتية كهربائية متناوبة عبر
+                                        تأثير البيزوإلكتريك المباشر</p>
+                                </div>
+                            </div>
+                            <div class="tl-connector"></div>
+                            <div class="tl-item">
+                                <div class="tl-icon" style="--ic:#f97316"><i class="fa-solid fa-arrows-to-circle"></i>
+                                </div>
+                                <div class="tl-body">
+                                    <strong data-lang="tl3_title">التقويم والتنظيم</strong>
+                                    <p data-lang="tl3_desc">دائرة Full-Bridge Rectifier تحوّل التيار المتناوب إلى مستمر
+                                        ثم منظم جهد يثبّته عند 5V</p>
+                                </div>
+                            </div>
+                            <div class="tl-connector"></div>
+                            <div class="tl-item">
+                                <div class="tl-icon" style="--ic:#60a5fa"><i class="fa-solid fa-battery-full"></i></div>
+                                <div class="tl-body">
+                                    <strong data-lang="tl4_title">التخزين والاستخدام</strong>
+                                    <p data-lang="tl4_desc">تُشحن بطاريات الليثيوم أيون 3.7V وتُستخدم لإضاءة ممرات
+                                        الجامعة ليلاً</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Components -->
+                    <div class="section-block">
+                        <h3 class="section-block-title" style="color:var(--secondary-color)">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                            <span data-lang="components_title">مكونات النظام</span>
+                        </h3>
+                        <div class="components-grid">
+                            <div class="comp-item">
+                                <i class="fa-solid fa-layer-group" style="color:var(--primary-color)"></i>
+                                <div>
+                                    <strong data-lang="comp1_name">أقراص PZT-5A</strong>
+                                    <span data-lang="comp1_desc">30 قرص بيزوإلكتريك موزعة بشكل مدروس</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <i class="fa-solid fa-arrows-to-circle" style="color:var(--secondary-color)"></i>
+                                <div>
+                                    <strong data-lang="comp2_name">دائرة التقويم</strong>
+                                    <span data-lang="comp2_desc">Full-Bridge Rectifier لتحويل AC إلى DC</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <i class="fa-solid fa-sliders" style="color:#f97316"></i>
+                                <div>
+                                    <strong data-lang="comp3_name">منظم الجهد LM7805</strong>
+                                    <span data-lang="comp3_desc">يثبّت الجهد الخارج عند 5V بثبات</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <i class="fa-solid fa-battery-full" style="color:#4ade80"></i>
+                                <div>
+                                    <strong data-lang="comp4_name">بطاريات Li-Ion 3.7V</strong>
+                                    <span data-lang="comp4_desc">تخزن الطاقة المتولدة للاستخدام الليلي</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <i class="fa-solid fa-microchip" style="color:#a78bfa"></i>
+                                <div>
+                                    <strong data-lang="comp5_name">وحدة ESP32</strong>
+                                    <span data-lang="comp5_desc">معالجة البيانات والاتصال اللاسلكي</span>
+                                </div>
+                            </div>
+                            <div class="comp-item">
+                                <i class="fa-solid fa-wifi" style="color:#38bdf8"></i>
+                                <div>
+                                    <strong data-lang="comp6_name">Socket.io Wi-Fi</strong>
+                                    <span data-lang="comp6_desc">إرسال البيانات اللحظية للوحة التحكم</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ -->
+                    <h3 class="faq-heading" data-lang="faq_title">أسئلة شائعة (Q&A)</h3>
+                    <div class="accordion">
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q1">ما هي الفائدة من هذا المشروع؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a1">توفير مصدر طاقة نظيف غير منقطع لإضاءة ممرات الجامعة وشحن الأجهزة
+                                    المحمولة للطلبة، إضافة إلى نشر ثقافة الاستدامة.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q2">كيف تعمل تقنية البيزوالكتريك؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a2">عندما يضغط الشخص بقدمه على الأرضيات المجهزة، يتولد ضغط ميكانيكي على
+                                    بلورات البيزوالكتريك التي تنتج فرق جهد كهربائي.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q3">كم عدد الأقراص المستخدمة في النموذج؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a3">يحتوي النموذج على 30 قرصاً موزعة بشكل مدروس لتغطية الطريق، تولد فولتية
+                                    تتراوح بين 3 إلى 15 فولت لكل ضغطة بتيار يقدر بـ 0.04 أمبير، ويتم جمعها لشحن بطاريات
+                                    الليثيوم.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q4">ما هي كفاءة النظام الكلية؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a4">تبلغ الكفاءة الكلية حوالي 60–70% بعد تحسين دوائر التقويم والتنظيم. مع
+                                    حركة 1000 خطوة يومياً يمكن توليد ما يكفي لتشغيل 3–5 مصابيح LED لعدة ساعات.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q5">هل يمكن توسيع النظام مستقبلاً؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a5">نعم، التصميم قابل للتوسع. يمكن تركيب البلاطات في مداخل المباني
+                                    الرئيسية والمسارات الأكثر ازدحاماً لمضاعفة الطاقة المولدة عشرات المرات.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q6">ما العمر التشغيلي للأقراص؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a6">تتحمل أقراص PZT-5A أكثر من 10 مليون دورة ضغط، ما يعني عمراً تشغيلياً
+                                    يتجاوز 10 سنوات في ظروف الاستخدام الجامعي.</p>
+                            </div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-toggle">
+                                <span data-lang="q7">ما الأثر البيئي للمشروع؟</span>
+                                <i class="fa-solid fa-chevron-down acc-arrow"></i>
+                            </button>
+                            <div class="acc-body">
+                                <p data-lang="a7">يُسهم المشروع في خفض البصمة الكربونية للجامعة؛ كل 1 kWh من الطاقة
+                                    البيزوإلكترية يعوّض نحو 500 غرام من انبعاثات CO₂ مقارنةً بالكهرباء التقليدية.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="glass-panel">
+            <p data-lang="footer_text">Generating sustainable energy from human
+                movement using piezoelectric technology and the
+                IoT </p>
+            <p>by:eng.marleen bashar sulaiman</p>
+            <p>AM</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
