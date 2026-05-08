@@ -172,7 +172,8 @@ let currentLang = 'ar';
 // Initialization & Socket.io handling
 // ==========================================
 // Connect to real-time server (if running)
-const socket = (typeof io !== 'undefined') ? io() : null;
+const RAILWAY_URL = 'https://pizo-production.up.railway.app';
+const socket = (typeof io !== 'undefined') ? io(RAILWAY_URL) : null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -237,15 +238,31 @@ function initAccordion() {
 // Web Sockets logic for ESP32 real integration
 // ==========================================
 if (socket) {
-    socket.on('updateState', (state) => {
-        // Only update UI if we are looking at real data (not heavy simulation override)
-        document.getElementById('batteryPercent').innerText = state.batteryPercent;
-        document.getElementById('batteryBar').style.width = state.batteryPercent + '%';
-        document.getElementById('voltageValue').innerText = state.voltage.toFixed(2);
-        document.getElementById('currentValue').innerText = state.current.toFixed(2);
+    socket.on('connect', () => {
+        console.log('[Socket.io] Connected to server! ID:', socket.id);
+    });
 
+    socket.on('disconnect', () => {
+        console.log('[Socket.io] Disconnected from server.');
+    });
+
+    socket.on('updateState', (state) => {
+        console.log('[Socket.io] updateState received:', state);
+
+        // Update sensor values
+        const battPct = document.getElementById('batteryPercent');
+        const battBar = document.getElementById('batteryBar');
+        const voltEl  = document.getElementById('voltageValue');
+        const currEl  = document.getElementById('currentValue');
+
+        if (battPct) battPct.innerText = state.batteryPercent;
+        if (battBar) battBar.style.width = state.batteryPercent + '%';
+        if (voltEl)  voltEl.innerText = parseFloat(state.voltage).toFixed(2);
+        if (currEl)  currEl.innerText = parseFloat(state.current).toFixed(2);
+
+        // ESP32 connection badge
         const espBadge = document.getElementById('espStatusBadge');
-        const espText = document.getElementById('espStatusText');
+        const espText  = document.getElementById('espStatusText');
         if (espBadge && espText) {
             if (state.espConnected) {
                 espBadge.classList.remove('disconnected');
@@ -258,25 +275,33 @@ if (socket) {
             }
         }
 
+        // Light switch (only if element exists)
         const lightSwitch = document.getElementById('lightSwitch');
-        lightSwitch.checked = state.lightStatus;
-        updateLightText(state.lightStatus);
+        if (lightSwitch) {
+            lightSwitch.checked = state.lightStatus;
+            updateLightText(state.lightStatus);
+        }
     });
 
-    document.getElementById('lightSwitch').addEventListener('change', (e) => {
-        const isChecked = e.target.checked;
-        updateLightText(isChecked);
-        socket.emit('toggle_light', isChecked);
-    });
+    // Light toggle (only wire if element exists)
+    const lightSwitchEl = document.getElementById('lightSwitch');
+    if (lightSwitchEl) {
+        lightSwitchEl.addEventListener('change', (e) => {
+            updateLightText(e.target.checked);
+            socket.emit('toggle_light', e.target.checked);
+        });
+    }
 } else {
-    // No server connected fallback
-    document.getElementById('lightSwitch').addEventListener('change', (e) => {
-        updateLightText(e.target.checked);
-    });
+    console.warn('[Socket.io] io() not available — running offline.');
+    const lightSwitchEl = document.getElementById('lightSwitch');
+    if (lightSwitchEl) {
+        lightSwitchEl.addEventListener('change', (e) => updateLightText(e.target.checked));
+    }
 }
 
 function updateLightText(isOn) {
     const el = document.getElementById('lightStatusText');
+    if (!el) return; // element may not exist in current HTML
     if (isOn) {
         el.innerText = translations[currentLang].light_on;
         el.style.color = 'var(--primary-color)';
