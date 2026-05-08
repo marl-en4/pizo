@@ -184,38 +184,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+// ==========================================
+// Live Chart Data (24-hour rolling, 24 slots)
+// ==========================================
+const CHART_HOURS = 24;
+const liveEnergyData = new Array(CHART_HOURS).fill(0);
+const liveLabels = [];
+for (let h = 0; h < CHART_HOURS; h++) {
+    liveLabels.push((h < 10 ? '0' : '') + h + ':00');
+}
+let totalEnergyAccum = 0;  // mWh accumulated today
+let isLiveMode = false;    // switches from demo to live once ESP data arrives
+
 let myChart = null;
 function initDemoChart() {
     const ctx = document.getElementById('energy24hChart');
     if (!ctx) return;
 
+    // Demo data (shown before ESP connects)
+    const demoData = [10, 5, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 230, 200, 180, 80, 40, 10, 5, 5, 5, 5, 10];
+
     myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
-            datasets: [
-                {
-                    label: 'Generated Energy (mWh)',
-                    data: [10, 5, 20, 150, 230, 200, 80, 40],
-                    borderColor: '#4ade80',
-                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
+            labels: liveLabels,
+            datasets: [{
+                label: 'Generated Energy (mWh)',
+                data: demoData,
+                borderColor: '#4ade80',
+                backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 3
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            animation: { duration: 400 },
+            plugins: { legend: { display: false } },
             scales: {
-                y: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                },
                 x: { grid: { color: 'rgba(255,255,255,0.05)' } }
             }
         }
     });
+}
+
+// Called every time updateState arrives from ESP32
+function updateLiveChart(voltage, current) {
+    if (!myChart) return;
+
+    // Switch chart from demo to live mode on first real data
+    if (!isLiveMode) {
+        isLiveMode = true;
+        myChart.data.datasets[0].data = [...liveEnergyData];
+        const badge = document.getElementById('chartStatusBadge');
+        if (badge) {
+            badge.innerHTML = '<i class="fa-solid fa-circle-dot" style="color:#4ade80"></i> <span>بيانات حية</span>';
+            badge.style.color = '#4ade80';
+        }
+    }
+
+    // Power in mW, accumulated per second → convert to mWh
+    const powerMW  = parseFloat(voltage) * parseFloat(current) * 1000;
+    const energyMWh = powerMW / 3600;  // 1 second worth of energy
+    totalEnergyAccum += energyMWh;
+
+    // Put energy into current hour slot
+    const currentHour = new Date().getHours();
+    liveEnergyData[currentHour] += energyMWh;
+    myChart.data.datasets[0].data = [...liveEnergyData];
+    myChart.update('none');  // no animation for smooth live update
+
+    // Update "today" counter
+    const todayEl = document.getElementById('totalEnergyToday');
+    if (todayEl) todayEl.innerText = totalEnergyAccum.toFixed(2);
 }
 
 function initAccordion() {
@@ -247,9 +294,10 @@ if (socket) {
     });
 
     socket.on('updateState', (state) => {
-        console.log('[Socket.io] updateState received:', state);
+        // Only process if ESP32 is sending real data
+        if (!state.espConnected) return;
 
-        // Update sensor values
+        // ── Metric Cards ───────────────────────────────────
         const battPct = document.getElementById('batteryPercent');
         const battBar = document.getElementById('batteryBar');
         const voltEl  = document.getElementById('voltageValue');
@@ -257,25 +305,24 @@ if (socket) {
 
         if (battPct) battPct.innerText = state.batteryPercent;
         if (battBar) battBar.style.width = state.batteryPercent + '%';
-        if (voltEl)  voltEl.innerText = parseFloat(state.voltage).toFixed(2);
-        if (currEl)  currEl.innerText = parseFloat(state.current).toFixed(2);
+        if (voltEl)  voltEl.innerText = parseFloat(state.voltage  || 0).toFixed(2);
+        if (currEl)  currEl.innerText = parseFloat(state.current  || 0).toFixed(3);
 
-        // ESP32 connection badge
+        // ── ESP32 Status Badge ──────────────────────────────
         const espBadge = document.getElementById('espStatusBadge');
         const espText  = document.getElementById('espStatusText');
         if (espBadge && espText) {
-            if (state.espConnected) {
-                espBadge.classList.remove('disconnected');
-                espBadge.classList.add('connected');
-                espText.innerText = translations[currentLang].esp_connected;
-            } else {
-                espBadge.classList.remove('connected');
-                espBadge.classList.add('disconnected');
-                espText.innerText = translations[currentLang].esp_disconnected;
-            }
+            espBadge.classList.remove('disconnected');
+            espBadge.classList.add('connected');
+            espText.innerText = translations[currentLang].esp_connected;
         }
 
-        // Light switch (only if element exists)
+        // ── Live Chart & Energy Counter ─────────────────────
+        if (state.voltage !== undefined && state.current !== undefined) {
+            updateLiveChart(state.voltage, state.current);
+        }
+
+        // ── Light switch ────────────────────────────────────
         const lightSwitch = document.getElementById('lightSwitch');
         if (lightSwitch) {
             lightSwitch.checked = state.lightStatus;
@@ -366,7 +413,8 @@ function initLangToggle() {
         });
 
         // Retrigger dynamic states to fit language
-        updateLightText(document.getElementById('lightSwitch').checked);
+        const ls = document.getElementById('lightSwitch');
+        if (ls) updateLightText(ls.checked);
     });
 }
 
