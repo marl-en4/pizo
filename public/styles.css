@@ -505,84 +505,202 @@ html[dir="ltr"] .sim-stats i { margin-left: 0; margin-right: 10px; }
 @media (max-width: 600px) {
     .container { padding: 8px; gap: 10px; }
 
-    /* Header: stack on two rows if needed */
+    /* Header: stack logo on top, controls below */
     header {
         flex-wrap: wrap;
-        gap: 10px;
-        padding: 10px 14px;
+        gap: 8px;
+        padding: 10px 12px;
     }
-    .logo { font-size: 1rem; gap: 8px; }
-    .logo h1 { font-size: 1rem; }
-    .logo i { font-size: 1.2rem; }
+    .logo {
+        font-size: 0.95rem;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+    }
+    .logo h1 {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .logo i { font-size: 1.1rem; flex-shrink: 0; }
 
-    .controls { gap: 8px; }
-    .btn-icon { padding: 6px 10px; font-size: 0.85rem; }
+    /* Controls row stays compact */
+    .controls {
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    .btn-icon {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        gap: 5px;
+    }
 
-    /* Connection badge smaller */
-    .connection-badge { font-size: 0.78rem; padding: 4px 8px; }
+    /* Connection badge: hide long text on very small screens */
+    .connection-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        gap: 5px;
+    }
 
-    /* Nav: smaller text */
-    .nav-btn { padding: 10px 6px; font-size: 0.85rem; gap: 5px; }
-    .nav-btn span { display: none; } /* hide text, show only icon on tiny screens */
+    /* Nav: icon-only on mobile */
+    .main-nav { padding: 6px; gap: 4px; }
+    .nav-btn {
+        padding: 10px 6px;
+        font-size: 1rem;
+        gap: 0;
+        border-radius: 12px;
+        min-height: 48px; /* touch-friendly */
+    }
+    .nav-btn span { display: none; } /* hide label, show only icon */
+    .nav-btn i { font-size: 1.1rem; }
 
     /* Cards */
-    .card { padding: 14px; margin-bottom: 12px; }
+    .card { padding: 14px; margin-bottom: 12px; border-radius: 16px; }
 
     /* Street info: stack vertically */
-    .street-info { flex-direction: column; gap: 6px; text-align: center; }
-    .street-name { font-size: 0.95rem; }
+    .street-info {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+        padding: 12px 14px;
+    }
+    .street-info h2 { font-size: 0.95rem; }
+    .street-name { font-size: 0.9rem; }
 
-    /* Metric cards: 1 column on phone */
+    /* Metric cards: single column */
     .dashboard-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
     }
-    .metric-card { padding: 16px; gap: 10px; }
-    .metric-value { font-size: 2rem; }
-    .metric-icon { font-size: 2rem; }
+    .metric-card {
+        flex-direction: row;
+        text-align: right;
+        justify-content: flex-start;
+        padding: 14px 16px;
+        gap: 14px;
+    }
+    html[dir="ltr"] .metric-card { text-align: left; }
+    .metric-card::after { height: 3px; }
+    .metric-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .metric-value { font-size: 1.8rem; }
+    .metric-card h3 { font-size: 0.85rem; }
+    .progress-bar-container { margin-top: 6px; }
 
     /* Chart */
-    .chart-wrapper { height: 180px; }
-    .chart-header { flex-direction: column; align-items: flex-start; gap: 6px; }
-    .chart-badge { font-size: 0.78rem; }
+    .chart-card { gap: 10px; }
+    .chart-wrapper { height: 170px; }
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .chart-title-group h3 { font-size: 0.95rem; }
+    .chart-badge { font-size: 0.75rem; padding: 4px 10px; }
+    .chart-note { font-size: 0.75rem; }
 
     /* Live stats: 1 column */
-    .live-stats-row { grid-template-columns: 1fr; }
+    .live-stats-row { grid-template-columns: 1fr; gap: 10px; }
+    .live-stat-box { padding: 12px 14px; gap: 12px; }
+    .live-stat-icon { font-size: 1.5rem; padding: 10px; }
     .live-stat-num { font-size: 1.2rem; }
+    .live-stat-label { font-size: 0.75rem; }
 
     /* Info tab */
-    .info-hero { flex-direction: column; gap: 12px; }
-    .info-hero-icon { font-size: 2rem; padding: 14px; }
-    .info-lead { font-size: 0.95rem; }
+    .info-card { padding: 14px; }
+    .info-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .info-hero-icon {
+        font-size: 1.8rem;
+        padding: 12px;
+        border-radius: 14px;
+    }
+    .info-hero h2 { font-size: 1.1rem; }
+    .info-lead { font-size: 0.88rem; margin-top: 6px; }
 
-    .key-numbers { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .kn-num { font-size: 1.2rem; }
+    /* Key numbers: 2 columns */
+    .key-numbers {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .kn-box { padding: 10px 8px; border-radius: 12px; }
+    .kn-num { font-size: 1.1rem; }
+    .kn-label { font-size: 0.72rem; }
 
-    .components-grid { grid-template-columns: 1fr; }
+    /* Section block */
+    .section-block { margin-bottom: 28px; }
+    .section-block-title { font-size: 1.1rem; margin-bottom: 14px; gap: 8px; }
 
-    .tl-item { flex-direction: row; gap: 10px; padding: 12px; }
-    .tl-icon { width: 40px; height: 40px; font-size: 1rem; }
-    .tl-body strong { font-size: 0.95rem; }
-    .tl-body p { font-size: 0.82rem; }
+    /* Components grid: 1 column */
+    .components-grid { grid-template-columns: 1fr; gap: 8px; }
+    .comp-item { padding: 12px; border-radius: 12px; gap: 12px; }
+    .comp-item i { font-size: 1.2rem; width: 38px; height: 38px; }
+    .comp-item strong { font-size: 0.9rem; }
+    .comp-item span { font-size: 0.75rem; }
+
+    /* Timeline */
+    .tl-item { padding: 10px 12px; gap: 10px; border-radius: 12px; }
+    .tl-icon { width: 38px; height: 38px; font-size: 0.95rem; }
+    .tl-body strong { font-size: 0.9rem; }
+    .tl-body p { font-size: 0.8rem; }
+    .tl-connector { margin: -5px 28px; }
 
     /* Accordion */
-    .acc-toggle { font-size: 0.9rem; padding: 12px; }
+    .faq-heading { font-size: 1.05rem; margin: 20px 0 10px; }
+    .acc-toggle { font-size: 0.85rem; padding: 12px; border-radius: 10px; }
+    .acc-body p { font-size: 0.82rem; }
 
     /* Footer */
-    footer { padding: 14px; font-size: 0.85rem; }
+    footer { padding: 14px; font-size: 0.8rem; gap: 4px; }
 
     /* Background shapes: reduce size on mobile */
-    .circle-1 { width: 200px; height: 200px; }
-    .circle-2 { width: 150px; height: 150px; }
+    .circle-1 { width: 180px; height: 180px; }
+    .circle-2 { width: 130px; height: 130px; }
 }
 
 /* ================================================
    RESPONSIVE — Very small (≤ 380px)
    ================================================ */
 @media (max-width: 380px) {
-    .logo h1 { font-size: 0.9rem; }
-    .metric-value { font-size: 1.7rem; }
-    .key-numbers { grid-template-columns: 1fr 1fr; }
-    .chart-wrapper { height: 150px; }
+    .container { padding: 6px; }
+
+    .logo h1 { font-size: 0.82rem; }
+    .controls { gap: 4px; }
+    .btn-icon { padding: 5px 8px; font-size: 0.75rem; }
+
+    .metric-value { font-size: 1.5rem; }
+    .metric-icon { font-size: 1.5rem; }
+    .metric-card h3 { font-size: 0.78rem; }
+
+    .key-numbers { grid-template-columns: repeat(2, 1fr); }
+    .kn-num { font-size: 1rem; }
+
+    .chart-wrapper { height: 145px; }
+
+    .section-block-title { font-size: 0.95rem; }
+    .acc-toggle { font-size: 0.78rem; padding: 10px; }
+}
+
+/* ================================================
+   TOUCH & ACCESSIBILITY IMPROVEMENTS
+   ================================================ */
+@media (hover: none) and (pointer: coarse) {
+    /* Make all clickable elements touch-friendly (min 44px) */
+    .btn-icon,
+    .nav-btn,
+    .acc-toggle,
+    .tbtn {
+        min-height: 44px;
+    }
+
+    /* Disable hover transforms on touch devices */
+    .btn:hover { transform: none; }
+    .btn-icon:hover { background: transparent; color: var(--text-color); }
 }
 

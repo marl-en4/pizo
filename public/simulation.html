@@ -900,6 +900,120 @@
       background: linear-gradient(90deg, #f59e0b, #ef4444);
       transition: width .4s
     }
+
+    /* ================================================
+       RESPONSIVE — Tablet (≤ 900px) — already handled above
+       RESPONSIVE — Mobile (≤ 600px)
+       ================================================ */
+    @media (max-width: 600px) {
+      /* Topbar: stack logo above controls */
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 12px
+      }
+
+      .topbar-logo {
+        font-size: 13px
+      }
+
+      .topbar-logo small {
+        font-size: 10px;
+        display: block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+      }
+
+      .topbar-controls {
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%
+      }
+
+      /* Touch-friendly buttons */
+      .tbtn,
+      .back-btn {
+        padding: 7px 12px;
+        font-size: 12px;
+        min-height: 36px
+      }
+
+      /* Night toggle compact */
+      .night-toggle { margin: 0 }
+      .night-badge { font-size: 9px; padding: 2px 5px }
+
+      /* Layout: single column, panel scrolls below canvas */
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 55vw auto;
+        height: auto
+      }
+
+      /* Canvas section height on mobile */
+      .sim-section {
+        height: 55vw;
+        min-height: 220px
+      }
+
+      /* HUD: smaller chips */
+      .hud { top: 8px; right: 8px; gap: 4px }
+      .hud-chip {
+        padding: 4px 8px;
+        font-size: 10px;
+        gap: 4px
+      }
+
+      /* Model thumb: smaller */
+      .model-thumb { width: 80px }
+      .model-thumb:hover { width: 160px }
+
+      /* Panel: full width, smaller padding */
+      .panel {
+        border-left: none;
+        border-top: 1px solid var(--brd);
+        max-height: none
+      }
+      .panel-section { padding: 12px }
+      .panel-title { font-size: 12px; margin-bottom: 8px }
+
+      /* Stats row: 2 columns */
+      .stats-row { grid-template-columns: 1fr 1fr; gap: 6px }
+      .stat-mini .v { font-size: 15px }
+
+      /* Users list: more compact */
+      .users-list { max-height: 200px }
+      .user-item { padding: 6px 10px }
+
+      /* Piezo grid: 2 columns */
+      .piezo-grid { grid-template-columns: 1fr 1fr }
+
+      /* Demand presets: 2 columns */
+      .demand-grid { grid-template-columns: 1fr 1fr }
+    }
+
+    /* ================================================
+       RESPONSIVE — Very small (≤ 380px)
+       ================================================ */
+    @media (max-width: 380px) {
+      .topbar-logo { font-size: 11px }
+      .layout { grid-template-rows: 60vw auto }
+      .sim-section { height: 60vw; min-height: 180px }
+      .stats-row { grid-template-columns: 1fr 1fr }
+      .tbtn, .back-btn { padding: 5px 8px; font-size: 11px }
+    }
+
+    /* ================================================
+       TOUCH IMPROVEMENTS
+       ================================================ */
+    @media (hover: none) and (pointer: coarse) {
+      .tbtn:hover, .back-btn:hover { background: var(--surf2); color: var(--text2) }
+      .add-btn:hover { background: var(--g) }
+      .demand-preset:hover { background: var(--surf2); color: var(--text2) }
+      .play-btn:hover { transform: none }
+    }
   </style>
 </head>
 
